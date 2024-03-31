@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
+using WebAPI.Extensions;
 using WebAPI.Interfaces.Services;
+
 
 namespace WebAPI.Controllers;
 
@@ -65,8 +67,37 @@ public class TransactionsController : ControllerBase
             return BadRequest($"Failed to found id={id}");
         }
 
-        var stream = _transactionService.ExportTransactionsToExcel(transaction);
+        var stream = _transactionService.ExportTransactionsToExcel(new[] { transaction });
 
         return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{id}.xlsx");
+    }
+
+    /// <summary>
+    /// Retrieves transactions within a specified date range and exports them as an Excel file.
+    /// </summary>
+    /// <param name="from">The starting date of the range.</param>
+    /// <param name="to">The ending date of the range.</param>
+    /// <param name="timeZone">The time zone ID to consider for the date range. If not provided, the local server time zone is used by default.</param>
+    /// <returns>The Excel file containing the transactions data.</returns>
+    [HttpGet("export")]
+    [Produces("application/json", "multipart/form-data")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DownloadTransactionByIdExcel(
+        [DefaultValue("2023-01-01")] DateOnly from,
+        [DefaultValue("2025-01-01")] DateOnly to,
+        [DefaultValue("Etc/GMT+9")] string? timeZone
+    )
+    {
+        if (string.IsNullOrEmpty(timeZone))
+        {
+            TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+            timeZone = localTimeZone.GetLocalTZIdentifier();
+        }
+
+        var transactions = await _transactionService.GetInRangeAndTZ(from, to, timeZone);
+        var stream = _transactionService.ExportTransactionsToExcel(transactions);
+
+        return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"from_{from}_to_{to}_timezone{timeZone}.xlsx");
     }
 }

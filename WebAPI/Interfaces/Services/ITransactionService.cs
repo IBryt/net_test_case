@@ -7,5 +7,6 @@ public interface ITransactionService
     Task<IEnumerable<TransactionDTO>> ReadTransactionsFromCsvFile(IFormFile file);
     Task AddAndUpdate(IEnumerable<TransactionDTO> transactions);
     Task<TransactionDTO> GetTransactionById(string id);
-    MemoryStream ExportTransactionsToExcel(TransactionDTO transaction);
+    MemoryStream ExportTransactionsToExcel(IEnumerable<TransactionDTO> transactions);
+    Task<IEnumerable<TransactionDTO>> GetInRangeAndTZ(DateOnly from, DateOnly to, string timeZone);
 }

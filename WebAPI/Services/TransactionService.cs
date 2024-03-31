@@ -41,7 +41,7 @@ public class TransactionService : ITransactionService
         }
     }
 
-    public MemoryStream ExportTransactionsToExcel(TransactionDTO transaction)
+    public MemoryStream ExportTransactionsToExcel(IEnumerable<TransactionDTO> transactions)
     {
         using var package = new ExcelPackage();
 
@@ -61,18 +61,33 @@ public class TransactionService : ITransactionService
         worksheet.Cells[1, 5].Value = "TransactionDate";
         worksheet.Cells[1, 6].Value = "ClientLocation";
 
-        worksheet.Cells[2, 1].Value = transaction.TransactionId;
-        worksheet.Cells[2, 2].Value = transaction.Name;
-        worksheet.Cells[2, 3].Value = transaction.Email;
-        worksheet.Cells[2, 4].Value = "$" + transaction.Amount.ToString("0.00", CultureInfo.InvariantCulture);
-        worksheet.Cells[2, 5].Value = transaction.TransactionDate.ToString("yyyy-MM-dd HH:mm:ss");
-        worksheet.Cells[2, 6].Value = transaction.ClientLocation;
+        var counter = 2;
+        foreach (var transaction in transactions)
+        {
+            worksheet.Cells[counter, 1].Value = transaction.TransactionId;
+            worksheet.Cells[counter, 2].Value = transaction.Name;
+            worksheet.Cells[counter, 3].Value = transaction.Email;
+            worksheet.Cells[counter, 4].Value = "$" + transaction.Amount.ToString("0.00", CultureInfo.InvariantCulture);
+            worksheet.Cells[counter, 5].Value = transaction.TransactionDate.ToString("yyyy-MM-dd HH:mm:ss");
+            worksheet.Cells[counter, 6].Value = transaction.ClientLocation;
+            counter++;
+        }
 
         MemoryStream stream = new MemoryStream();
         package.SaveAs(stream);
         stream.Position = 0;
 
         return stream;
+    }
+
+    public async Task<IEnumerable<TransactionDTO>> GetInRangeAndTZ(DateOnly from, DateOnly to, string timeZone)
+    {
+        return await _queriesProcessor.Process<GetTransactionsInRangeAndTZ, IEnumerable<TransactionDTO>>(new GetTransactionsInRangeAndTZ
+        {
+            From = from,
+            To = to,
+            TimeZone = timeZone
+        });
     }
 
     public async Task<TransactionDTO> GetTransactionById(string id)

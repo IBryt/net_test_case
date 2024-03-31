@@ -24,6 +24,7 @@ public static class ApplicationServiceExtensions
 
         services.AddQueryHandler<GetTransactionIdsHandler, GetTransactionIds, IEnumerable<string>>();
         services.AddQueryHandler<GetTransactionByIdHandler, GetTransactionById, TransactionDTO>();
+        services.AddQueryHandler<GetTransactionsInRangeAndTZHandler, GetTransactionsInRangeAndTZ, IEnumerable<TransactionDTO>>();
 
         services.AddScoped<ICommandsProcessor, CommandsProcessor>();
         services.AddScoped<IQueriesProcessor, QueriesProcessor>();
