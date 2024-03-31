@@ -16,8 +16,11 @@ var app = builder.Build();
 
 app.Migration();
 
-app.UseHttpsRedirection();
-
+if(builder.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+    
 app.MapControllers();
 
 app.Run();

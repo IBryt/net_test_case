@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  postgres:
+    image: postgres:16.1-alpine3.19
+    container_name: net_test_case.postgres
+    environment:
+      - POSTGRES_BD=net_test_case
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
+    ports:
+      - 5433:5432
+
+  webapi:
+    image: ${DOCKER_REGISTRY-}webapi
+    container_name: net_test_case.webapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;Database=net_test_case;User Id=postgres;Password=postgrespw;
+    build:
+      context: .
+      dockerfile: WebAPI/Dockerfile
+    ports:
+      - 5000:5000
+      - 5001:5001
+    depends_on:
+      - postgres
+    command: ["./wait-for-it.sh", "postgres:5432", "--", "dotnet", "WebAPI.dll"]
+  
+  
+
