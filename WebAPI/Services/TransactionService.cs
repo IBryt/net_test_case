@@ -47,6 +47,13 @@ public class TransactionService : ITransactionService
 
         ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Transactions");
 
+        worksheet.Column(1).Width = 30;
+        worksheet.Column(2).Width = 30;
+        worksheet.Column(3).Width = 30;
+        worksheet.Column(4).Width = 10;
+        worksheet.Column(5).Width = 20;
+        worksheet.Column(6).Width = 40;
+
         worksheet.Cells[1, 1].Value = "TransactionId";
         worksheet.Cells[1, 2].Value = "Name";
         worksheet.Cells[1, 3].Value = "Email";
@@ -57,8 +64,8 @@ public class TransactionService : ITransactionService
         worksheet.Cells[2, 1].Value = transaction.TransactionId;
         worksheet.Cells[2, 2].Value = transaction.Name;
         worksheet.Cells[2, 3].Value = transaction.Email;
-        worksheet.Cells[2, 4].Value = transaction.Amount;
-        worksheet.Cells[2, 5].Value = transaction.TransactionDate;
+        worksheet.Cells[2, 4].Value = "$" + transaction.Amount.ToString("0.00", CultureInfo.InvariantCulture);
+        worksheet.Cells[2, 5].Value = transaction.TransactionDate.ToString("yyyy-MM-dd HH:mm:ss");
         worksheet.Cells[2, 6].Value = transaction.ClientLocation;
 
         MemoryStream stream = new MemoryStream();
@@ -112,6 +119,5 @@ public class TransactionService : ITransactionService
             .Select(g => g.First())
             .ToList();
     }
-
 
 }

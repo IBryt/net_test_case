@@ -26,4 +26,13 @@ public static class DataBaseExtensions
             app.UseSwaggerUI();
         }
     }
+
+    public static void DBRegistration(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        services.AddDbContext<DataContext>(options =>
+           options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddSingleton<IDbConnectionFactory>(
+            new PostgresDBConnectionFactory(configuration.GetConnectionString("DefaultConnection")));
+    }
 }

@@ -19,7 +19,7 @@ public class GetTransactionByIdHandler : IQueryHandler<GetTransactionById, Trans
     {
         using var conn = await _connectionFactory.GetDbConnection();
 
-        var sql = "SELECT TransactionId FROM Transactions WHERE TransactionId = @Id";
+        var sql = "SELECT * FROM Transactions WHERE TransactionId = @Id";
 
         return await conn.QueryFirstOrDefaultAsync<TransactionDTO>(sql, new { Id = query.Id });
 
